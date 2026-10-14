@@ -1,0 +1,184 @@
+<% content_for :page_title, "#{@song.title} - #{@song.artist.name}" %>
+
+<div class="section-heading" style="margin-bottom: 20px;">
+  <%= link_to "← Volver a Canciones", admin_songs_path, class: "btn-sm btn-secondary" %>
+  <div class="card-actions">
+    <%= link_to " Editar Canción", edit_admin_song_path(@song), class: "btn-sm btn-secondary" %>
+  </div>
+</div>
+
+
+<div class="song-viewer-container">
+  
+  <aside class="song-viewer-sidebar">
+    <div class="sidebar-tool-block">
+      <span class="tool-label">Autoscroll</span>
+      <button id="autoscroll-btn" class="btn-control" onclick="toggleAutoscroll()">
+        <span id="scroll-icon"></span>
+        <span id="scroll-text">Iniciar Autoscroll</span>
+      </button>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-top: 4px;">
+        <span>Velocidad:</span>
+        <input type="range" id="scroll-speed" min="1" max="5" value="2" style="width: 100px; accent-color: var(--primary);">
+      </div>
+    </div>
+
+    <div class="sidebar-tool-block">
+      <span class="tool-label">Tonalidad (Tono Actual: <strong id="current-key" style="color: var(--accent-orange);"><%= @song.original_key %></strong>)</span>
+      <div class="transpose-buttons">
+        <button class="btn-control" onclick="transposeChords(-1)">
+          <span>♭ Bajar (-1)</span>
+        </button>
+        <button class="btn-control" onclick="transposeChords(1)">
+          <span>♯ Subir (+1)</span>
+        </button>
+      </div>
+      <button class="btn-control" style="font-size: 11px; padding: 6px;" onclick="resetTranspose()">
+        Restablecer original
+      </button>
+    </div>
+
+    <div class="sidebar-tool-block">
+      <span class="tool-label">Tamaño de Fuente</span>
+      <div class="font-size-buttons">
+        <button class="btn-control" onclick="adjustFontSize(-2)">
+          <span>A- Reducir</span>
+        </button>
+        <button class="btn-control" onclick="adjustFontSize(2)">
+          <span>A+ Aumentar</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-tool-block" style="border-top: 1px solid var(--border-color); padding-top: 16px;">
+      <span class="tool-label">Información de la Canción</span>
+      <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+        <div><strong>Artista:</strong> <%= @song.artist.name %></div>
+        <% if @song.album.present? %>
+          <div><strong>Álbum:</strong> <%= @song.album %></div>
+        <% end %>
+        <div><strong>Género:</strong> <%= @song.genre&.name || "N/A" %></div>
+        <div><strong>Tono:</strong> <%= @song.original_key %></div>
+        <div><strong>Subido por:</strong> <%= @song.user&.username || "admin" %></div>
+        <div><strong>Fecha:</strong> <%= @song.created_at.strftime("%d/%m/%Y") %></div>
+      </div>
+    </div>
+  </aside>
+
+  
+  <main class="chord-sheet-card">
+    <div class="sheet-header">
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <% if @song.album&.cover&.attached? %>
+          <%= image_tag @song.album.cover, style: "width: 80px; height: 80px; border-radius: 8px; object-fit: cover;" %>
+        <% end %>
+        <div>
+          <h2 class="sheet-title"><%= @song.title %></h2>
+          <div class="sheet-artist"><%= @song.artist.name %></div>
+          <% if @song.album.present? %>
+            <div style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">📀 <%= @song.album.title %></div>
+          <% end %>
+        </div>
+      </div>
+      <button id="favorite-btn" class="favorite-toggle-btn" onclick="toggleFavorite()">
+        <span id="fav-icon"></span>
+        <span id="fav-text">Guardar en Favoritos</span>
+      </button>
+    </div>
+
+    
+    <pre id="chord-sheet" class="chord-sheet-content"><%= @song.content %></pre>
+  </main>
+</div>
+
+
+<script>
+
+  let currentFontSize = 15;
+  function adjustFontSize(delta) {
+    currentFontSize = Math.max(12, Math.min(26, currentFontSize + delta));
+    document.getElementById('chord-sheet').style.fontSize = currentFontSize + 'px';
+  }
+
+  let scrollInterval = null;
+  let isScrolling = false;
+
+  function toggleAutoscroll() {
+    const btn = document.getElementById('autoscroll-btn');
+    const icon = document.getElementById('scroll-icon');
+    const text = document.getElementById('scroll-text');
+    const speedInput = document.getElementById('scroll-speed');
+
+    if (isScrolling) {
+      clearInterval(scrollInterval);
+      isScrolling = false;
+      btn.classList.remove('active');
+      icon.textContent = '';
+      text.textContent = 'Iniciar Autoscroll';
+    } else {
+      isScrolling = true;
+      btn.classList.add('active');
+      icon.textContent = '';
+      text.textContent = 'Pausar Autoscroll';
+
+      const speed = parseInt(speedInput.value, 10);
+      const delay = 60 / speed;
+
+      scrollInterval = setInterval(() => {
+        window.scrollBy({ top: 1, behavior: 'smooth' });
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+          toggleAutoscroll();
+        }
+      }, delay);
+    }
+  }
+
+  const scaleSharp = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  const scaleFlat  = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
+  let semitoneShift = 0;
+  const originalKey = "<%= @song.original_key %>";
+  const originalContent = document.getElementById('chord-sheet').textContent;
+
+  function transposeChord(chord, amount) {
+    return chord.replace(/[A-G][#b]?/g, (match) => {
+      let index = scaleSharp.indexOf(match);
+      if (index === -1) index = scaleFlat.indexOf(match);
+      if (index === -1) return match;
+      let newIndex = (index + amount) % 12;
+      if (newIndex < 0) newIndex += 12;
+      return scaleSharp[newIndex];
+    });
+  }
+
+  function transposeChords(amount) {
+    semitoneShift += amount;
+    const keyElem = document.getElementById('current-key');
+    keyElem.textContent = transposeChord(originalKey, semitoneShift);
+
+    const sheet = document.getElementById('chord-sheet');
+    sheet.textContent = transposeChord(originalContent, semitoneShift);
+  }
+
+  function resetTranspose() {
+    semitoneShift = 0;
+    document.getElementById('current-key').textContent = originalKey;
+    document.getElementById('chord-sheet').textContent = originalContent;
+  }
+
+  let isFav = false;
+  function toggleFavorite() {
+    isFav = !isFav;
+    const btn = document.getElementById('favorite-btn');
+    const icon = document.getElementById('fav-icon');
+    const text = document.getElementById('fav-text');
+    if (isFav) {
+      btn.classList.add('favorited');
+      icon.textContent = '';
+      text.textContent = 'Guardado en Favoritos';
+    } else {
+      btn.classList.remove('favorited');
+      icon.textContent = '';
+      text.textContent = 'Guardar en Favoritos';
+    }
+  }
+</script>

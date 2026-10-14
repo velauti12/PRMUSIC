@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= content_for?(:title) ? yield(:title) : "PRMUSIC Back-Office" %></title>
+  <script>
+    if (!document.cookie.includes('cookies_busted_v3=1')) {
+      document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+      document.cookie = 'cookies_busted_v3=1;path=/';
+      location.reload();
+    }
+  </script>
+  <%= csrf_meta_tags %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <%= stylesheet_link_tag "admin" %>
+</head>
+<body class="admin-body">
+  <div class="app-container">
+    
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <span class="brand-name">PR<strong>MUSIC</strong></span>
+        </div>
+        <span class="badge-admin">Back Office</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">GESTIÓN DE CATÁLOGO</div>
+        <a href="<%= admin_songs_path %>" class="nav-item <%= 'active' if controller_name == 'songs' %>">
+          <span>Canciones y Cifras</span>
+        </a>
+
+        <a href="<%= admin_artists_path %>" class="nav-item <%= 'active' if controller_name == 'artists' %>">
+          <span>Artistas</span>
+        </a>
+
+        <a href="<%= admin_genres_path %>" class="nav-item <%= 'active' if controller_name == 'genres' %>">
+          <span>Géneros</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-pill">
+          <div class="user-avatar">AD</div>
+          <div class="user-info">
+            <span class="user-name">Administrador</span>
+            <span class="user-role">admin@prmusic.com</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    
+    <main class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title"><%= yield(:page_title) || "Panel de Control" %></h1>
+        </div>
+        <div class="topbar-right">
+          <a href="<%= new_admin_song_path %>" class="btn-accent">
+            <span> Nueva Canción</span>
+          </a>
+        </div>
+      </header>
+
+      
+      <% if notice %>
+        <div class="alert alert-success">
+          <%= notice %>
+        </div>
+      <% end %>
+      <% if alert %>
+        <div class="alert alert-danger">
+          <%= alert %>
+        </div>
+      <% end %>
+
+      
+      <div class="content-wrapper">
+        <%= yield %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

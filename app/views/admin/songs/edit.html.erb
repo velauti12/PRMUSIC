@@ -1,0 +1,15 @@
+<% content_for :page_title, "Editar Canción: #{@song.title}" %>
+
+<div class="section-heading" style="margin-bottom: 24px;">
+  <div>
+    <h2 class="section-title"> Editar Canción</h2>
+    <p style="color: var(--text-dim); font-size: 13px; margin-top: 4px;">
+      Modificá cualquier dato de la canción: título, artista, álbum, género, tono y cifra.
+    </p>
+  </div>
+  <div class="card-actions">
+    <%= link_to "← Volver al listado", admin_songs_path, class: "btn-sm btn-secondary" %>
+  </div>
+</div>
+
+<%= render "form" %>

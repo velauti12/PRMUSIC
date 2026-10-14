@@ -1,0 +1,15 @@
+<% content_for :page_title, "Editar Artista: #{@artist.name}" %>
+
+<div class="section-heading" style="margin-bottom: 24px;">
+  <div>
+    <h2 class="section-title"> Editar Artista</h2>
+    <p style="color: var(--text-dim); font-size: 13px; margin-top: 4px;">
+      Modificá el nombre del artista o su biografía.
+    </p>
+  </div>
+  <div class="card-actions">
+    <%= link_to "← Volver al listado", admin_artists_path, class: "btn-sm btn-secondary" %>
+  </div>
+</div>
+
+<%= render "form" %>

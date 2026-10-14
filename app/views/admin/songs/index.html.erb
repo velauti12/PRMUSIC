@@ -1,0 +1,112 @@
+<% content_for :page_title, "Panel de admin" %>
+
+
+<%= form_with url: admin_songs_path, method: :get, local: true, class: "filter-bar" do |f| %>
+  <div class="search-input-box">
+    <span class="search-icon">🔍</span>
+    <%= f.text_field :q, value: params[:q], placeholder: "Buscar por canción, artista o letra...", class: "search-field" %>
+  </div>
+
+  <div class="filter-dropdown-box">
+    <%= f.select :genre_id, options_from_collection_for_select(@genres, :id, :name, params[:genre_id]), { include_blank: "Todos los filtros / géneros" }, class: "filter-select", onchange: "this.form.submit()" %>
+  </div>
+
+  <%= f.submit "Filtrar", class: "btn-sm btn-secondary", style: "padding: 12px 18px;" %>
+  <% if params[:q].present? || params[:genre_id].present? %>
+    <%= link_to "Limpiar", admin_songs_path, class: "btn-sm btn-secondary", style: "padding: 12px 18px;" %>
+  <% end %>
+<% end %>
+
+
+<div class="section-heading">
+  <h2 class="section-title">
+    <span>🎼</span> Grilla de Canciones (Vista Front-End / Cifras)
+  </h2>
+  <span style="font-size: 13px; color: var(--text-dim);"><%= @songs.count %> temas disponibles</span>
+</div>
+
+<div class="songs-grid">
+  <% @songs.each do |song| %>
+    <div class="song-card">
+      <div class="song-card-header">
+        <%= link_to song.title, admin_song_path(song), class: "song-title-link" %>
+        <div class="song-artist-name"><%= song.artist.name %></div>
+        <div class="song-tags">
+          <span class="tag-genre"><%= song.genre&.name || "General" %></span>
+          <span class="tag-key">Tono: <%= song.original_key %></span>
+        </div>
+      </div>
+
+      <div class="song-card-footer">
+        <div class="song-uploader">
+          Subido por: <strong><%= song.user&.username || "comunidad" %></strong>
+        </div>
+        <div class="card-actions">
+          <%= link_to "Ver Acordes", admin_song_path(song), class: "btn-sm btn-secondary" %>
+          <%= link_to "", edit_admin_song_path(song), class: "btn-sm btn-secondary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+
+<div class="section-heading" style="margin-top: 40px;">
+  <h2 class="section-title">
+    <span>⚙</span> Administración del Back-Office
+  </h2>
+  <%= link_to " Agregar Canción", new_admin_song_path, class: "btn-sm btn-accent" %>
+</div>
+
+<div class="table-card">
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Artista</th>
+          <th>Álbum</th>
+          <th>Género</th>
+          <th>Tono</th>
+          <th>Estado</th>
+          <th>Creado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @songs.each do |song| %>
+          <tr>
+            <td>#<%= song.id %></td>
+            <td><strong><%= link_to song.title, admin_song_path(song), style: "color: #fff; text-decoration: none;" %></strong></td>
+            <td><span style="color: var(--accent-cyan);"><%= song.artist.name %></span></td>
+            <td style="color: var(--text-muted); font-size: 13px;"><%= song.album.presence || "—" %></td>
+            <td><span class="tag-genre"><%= song.genre&.name || "N/A" %></span></td>
+            <td><span class="tag-key"><%= song.original_key %></span></td>
+            <td>
+              <% if song.pending? %>
+                <span style="color: #f39c12; font-weight: bold;">Pendiente</span>
+              <% elsif song.approved? %>
+                <span style="color: #2ecc71; font-weight: bold;">Aprobada</span>
+              <% else %>
+                <span style="color: #e74c3c; font-weight: bold;">Rechazada</span>
+              <% end %>
+            </td>
+            <td style="color: var(--text-dim); font-size: 12px;"><%= song.created_at.strftime("%d/%m/%Y") %></td>
+            <td>
+              <div class="card-actions">
+                <% if song.pending? %>
+                  <%= button_to "✓", approve_admin_song_path(song), method: :patch, class: "btn-sm btn-accent", form: { style: "display:inline-block;" }, title: "Aprobar" %>
+                  <%= button_to "✕", reject_admin_song_path(song), method: :patch, class: "btn-sm btn-danger-outline", form: { style: "display:inline-block;" }, title: "Rechazar" %>
+                <% end %>
+                <%= link_to "👁", admin_song_path(song), class: "btn-sm btn-secondary", title: "Ver" %>
+                <%= link_to "✎", edit_admin_song_path(song), class: "btn-sm btn-secondary", title: "Editar" %>
+                <%= button_to "🗑", admin_song_path(song), method: :delete, data: { turbo_confirm: "¿Seguro que deseas eliminar esta canción?" }, class: "btn-sm btn-danger-outline", form: { style: "display:inline-block;" }, title: "Eliminar" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

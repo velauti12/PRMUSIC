@@ -1,0 +1,36 @@
+<% content_for :page_title, "Gestión de Géneros Musicales" %>
+
+<div class="section-heading">
+  <h2 class="section-title"> Géneros Musicales </h2>
+  <%= link_to " Nuevo Género", new_admin_genre_path, class: "btn-accent" %>
+</div>
+
+<div class="table-card" style="max-width: 700px;">
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre del Género</th>
+          <th>Canciones Asociadas</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @genres.each do |genre| %>
+          <tr>
+            <td>#<%= genre.id %></td>
+            <td><strong style="color: #fff;"><%= genre.name %></strong></td>
+            <td><span class="tag-genre"><%= genre.songs.count %> temas</span></td>
+            <td>
+              <div class="card-actions">
+                <%= link_to " Editar", edit_admin_genre_path(genre), class: "btn-sm btn-secondary" %>
+                <%= button_to "🗑", admin_genre_path(genre), method: :delete, data: { turbo_confirm: "¿Eliminar género?" }, class: "btn-sm btn-danger-outline", form: { style: "display:inline-block;" } %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

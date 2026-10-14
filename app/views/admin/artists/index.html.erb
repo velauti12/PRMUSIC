@@ -1,0 +1,40 @@
+<% content_for :page_title, "Gestión de Artistas y Bandas" %>
+
+<div class="section-heading">
+  <h2 class="section-title"> Lista de Artistas Registrados</h2>
+  <%= link_to " Nuevo Artista", new_admin_artist_path, class: "btn-accent" %>
+</div>
+
+<div class="table-card">
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre del Artista / Banda</th>
+          <th>Biografía / Descripción</th>
+          <th>Canciones Asociadas</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @artists.each do |artist| %>
+          <tr>
+            <td>#<%= artist.id %></td>
+            <td><strong style="color: #fff;"><%= artist.name %></strong></td>
+            <td style="color: var(--text-muted); font-size: 13px; max-width: 400px;"><%= artist.bio.presence || "Sin biografía" %></td>
+            <td>
+              <span class="tag-genre"><%= artist.songs.count %> temas</span>
+            </td>
+            <td>
+              <div class="card-actions">
+                <%= link_to " Editar", edit_admin_artist_path(artist), class: "btn-sm btn-secondary" %>
+                <%= button_to "🗑", admin_artist_path(artist), method: :delete, data: { turbo_confirm: "¿Eliminar este artista y sus canciones asociadas?" }, class: "btn-sm btn-danger-outline", form: { style: "display:inline-block;" } %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

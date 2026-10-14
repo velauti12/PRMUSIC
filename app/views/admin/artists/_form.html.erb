@@ -1,0 +1,34 @@
+<%= form_with model: [:admin, @artist], local: true do |f| %>
+  <% if @artist.errors.any? %>
+    <div class="alert alert-danger">
+      <strong><%= pluralize(@artist.errors.count, "error") %> impidieron guardar el artista:</strong>
+      <ul style="margin-top: 6px; padding-left: 20px;">
+        <% @artist.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-card">
+    <div class="form-section-title"> Datos del Artista o Banda</div>
+
+    <div class="form-group">
+      <%= f.label :name, "Nombre de la Banda o Artista", class: "form-label" %>
+      <%= f.text_field :name, placeholder: "Ej: Soda Stereo, Hermética, Spinetta...", class: "form-control", required: true %>
+    </div>
+
+    <div class="form-group" style="margin-top: 16px;">
+      <%= f.label :bio, "Biografía / Descripción", class: "form-label" %>
+      <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 6px;">
+        Breve reseña del artista o banda: género, época, integrantes destacados, etc.
+      </div>
+      <%= f.text_area :bio, rows: 6, placeholder: "Ej: Soda Stereo fue una banda argentina de rock formada en 1982...", class: "form-control" %>
+    </div>
+
+    <div class="form-actions">
+      <%= f.submit @artist.new_record? ? "Guardar Artista" : "Actualizar Artista", class: "btn-accent" %>
+      <%= link_to "Cancelar", admin_artists_path, class: "btn-sm btn-secondary", style: "padding: 11px 20px; font-size: 14px;" %>
+    </div>
+  </div>
+<% end %>

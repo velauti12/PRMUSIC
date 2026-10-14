@@ -1,0 +1,78 @@
+<% content_for :page_title, "Dashboard General" %>
+
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon green"></div>
+    <div class="stat-info">
+      <span class="stat-value"><%= @songs_count %></span>
+      <span class="stat-label">Canciones y Cifras</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon blue"></div>
+    <div class="stat-info">
+      <span class="stat-value"><%= @artists_count %></span>
+      <span class="stat-label">Artistas Registrados</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon orange"></div>
+    <div class="stat-info">
+      <span class="stat-value"><%= @genres_count %></span>
+      <span class="stat-label">Géneros Musicales</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon purple"></div>
+    <div class="stat-info">
+      <span class="stat-value"><%= @users_count %></span>
+      <span class="stat-label">Usuarios</span>
+    </div>
+  </div>
+</div>
+
+
+<div class="section-heading">
+  <h2 class="section-title">Últimas Canciones Agregadas</h2>
+  <%= link_to "Ver todas las canciones →", admin_songs_path, class: "btn-sm btn-secondary" %>
+</div>
+
+<div class="table-card">
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Artista</th>
+          <th>Género</th>
+          <th>Tono</th>
+          <th>Subido por</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recent_songs.each do |song| %>
+          <tr>
+            <td>
+              <strong><%= link_to song.title, admin_song_path(song), style: "color: #fff; text-decoration: none;" %></strong>
+            </td>
+            <td><span style="color: var(--accent-cyan);"><%= song.artist.name %></span></td>
+            <td><span class="tag-genre"><%= song.genre&.name || "Sin género" %></span></td>
+            <td><span class="tag-key"><%= song.original_key %></span></td>
+            <td style="color: var(--text-dim);"><%= song.user&.username || "admin" %></td>
+            <td>
+              <div class="card-actions">
+                <%= link_to "👁 Ver Cifra", admin_song_path(song), class: "btn-sm btn-secondary" %>
+                <%= link_to "", edit_admin_song_path(song), class: "btn-sm btn-secondary" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

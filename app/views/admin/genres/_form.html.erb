@@ -1,0 +1,24 @@
+<%= form_with model: [:admin, @genre], local: true do |f| %>
+  <% if @genre.errors.any? %>
+    <div class="alert alert-danger">
+      <strong><%= pluralize(@genre.errors.count, "error") %> impidieron guardar el género:</strong>
+      <ul style="margin-top: 6px; padding-left: 20px;">
+        <% @genre.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-card" style="max-width: 500px;">
+    <div class="form-group">
+      <%= f.label :name, "Nombre del Género", class: "form-label" %>
+      <%= f.text_field :name, placeholder: "Ej: Rock Nacional, Heavy Metal, Reggae...", class: "form-control", required: true %>
+    </div>
+
+    <div class="form-actions">
+      <%= f.submit @genre.new_record? ? "Guardar Género" : "Actualizar", class: "btn-accent" %>
+      <%= link_to "Cancelar", admin_genres_path, class: "btn-sm btn-secondary", style: "padding: 11px 20px; font-size: 14px;" %>
+    </div>
+  </div>
+<% end %>

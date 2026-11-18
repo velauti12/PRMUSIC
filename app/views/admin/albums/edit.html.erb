@@ -1,0 +1,6 @@
+<% content_for :page_title, "Editar Álbum: #{@album.title}" %>
+<div class="section-heading" style="margin-bottom: 24px;">
+  <h2 class="section-title">Editar Álbum</h2>
+  <%= link_to "← Volver al listado", admin_albums_path, class: "btn-sm btn-secondary" %>
+</div>
+<%= render "form" %>

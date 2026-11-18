@@ -1,0 +1,49 @@
+<% content_for :page_title, "Gestión de Álbumes" %>
+
+<div class="section-heading">
+  <h2 class="section-title">Álbumes y Portadas</h2>
+  <%= link_to "Nuevo Álbum", new_admin_album_path, class: "btn-accent" %>
+</div>
+
+<div class="table-card">
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Portada</th>
+          <th>Título</th>
+          <th>Artista</th>
+          <th>Canciones</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @albums.empty? %>
+          <tr>
+            <td colspan="5" style="color: var(--text-muted);">Todavía no hay álbumes cargados.</td>
+          </tr>
+        <% end %>
+        <% @albums.each do |album| %>
+          <tr>
+            <td>
+              <% if album.cover.attached? %>
+                <%= image_tag album.cover, alt: "Portada de #{album.title}", style: "width: 48px; height: 48px; border-radius: 6px; object-fit: cover;" %>
+              <% else %>
+                <span style="color: var(--text-dim); font-size: 12px;">Sin portada</span>
+              <% end %>
+            </td>
+            <td><strong style="color: #fff;"><%= album.title %></strong></td>
+            <td><%= album.artist.name %></td>
+            <td><span class="tag-genre"><%= album.songs.size %> temas</span></td>
+            <td>
+              <div class="card-actions">
+                <%= link_to "Editar", edit_admin_album_path(album), class: "btn-sm btn-secondary" %>
+                <%= button_to "🗑", admin_album_path(album), method: :delete, data: { turbo_confirm: "¿Eliminar este álbum? Las canciones quedan sin álbum." }, class: "btn-sm btn-danger-outline", form: { style: "display:inline-block;" } %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

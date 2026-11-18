@@ -1,9 +1,7 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  name: MyString
-  bio: MyText
+  name: Almendra
+  bio: Banda de rock nacional
 
 two:
-  name: MyString
-  bio: MyText
+  name: Hermética
+  bio: Banda de heavy metal

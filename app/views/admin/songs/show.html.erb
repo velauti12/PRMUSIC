@@ -55,7 +55,7 @@
       <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
         <div><strong>Artista:</strong> <%= @song.artist.name %></div>
         <% if @song.album.present? %>
-          <div><strong>Álbum:</strong> <%= @song.album %></div>
+          <div><strong>Álbum:</strong> <%= @song.album.title %></div>
         <% end %>
         <div><strong>Género:</strong> <%= @song.genre&.name || "N/A" %></div>
         <div><strong>Tono:</strong> <%= @song.original_key %></div>

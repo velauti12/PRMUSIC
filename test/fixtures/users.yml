@@ -1,11 +1,21 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
+# Usuarios de prueba. Contraseña de ambos: "password123"
 one:
-  username: MyString
-  email: MyString
-  role: MyString
+  username: usuario_uno
+  email: uno@example.com
+  role: user
+  token: token-usuario-uno
+  password_digest: <%= BCrypt::Password.create("password123", cost: BCrypt::Engine::MIN_COST) %>
 
 two:
-  username: MyString
-  email: MyString
-  role: MyString
+  username: usuario_dos
+  email: dos@example.com
+  role: user
+  token: token-usuario-dos
+  password_digest: <%= BCrypt::Password.create("password123", cost: BCrypt::Engine::MIN_COST) %>
+
+admin:
+  username: admin_test
+  email: admin@example.com
+  role: admin
+  token: token-admin
+  password_digest: <%= BCrypt::Password.create("password123", cost: BCrypt::Engine::MIN_COST) %>

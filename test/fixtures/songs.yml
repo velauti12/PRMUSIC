@@ -1,17 +1,19 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
+# one: aprobada (visible para todos) · two: pendiente, aportada por el usuario two
 one:
-  title: MyString
+  title: Muchacha ojos de papel
   artist: one
   genre: one
+  album: one
   user: one
-  original_key: MyString
-  content: MyText
+  original_key: Am
+  status: 1
+  content: "Am        G\nMuchacha ojos de papel\nC         E7\nadónde vas\n"
 
 two:
-  title: MyString
+  title: Gil trabajador
   artist: two
   genre: two
   user: two
-  original_key: MyString
-  content: MyText
+  original_key: E
+  status: 0
+  content: "E         A\nLetra de prueba pendiente\n"

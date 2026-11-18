@@ -2,16 +2,19 @@
 puts "== Limpiando base de datos =="
 Favorite.destroy_all
 Song.destroy_all
+Album.destroy_all
 Artist.destroy_all
 Genre.destroy_all
 User.destroy_all
 
 puts "== Creando Usuarios =="
-admin = User.create!(username: "admin", email: "admin@prmusic.com", role: "admin")
-user1 = User.create!(username: "elmejor512", email: "elmejor512@prmusic.com", role: "user")
-user2 = User.create!(username: "luisperez576", email: "luis@prmusic.com", role: "user")
-user3 = User.create!(username: "carlosalberto12", email: "carlos@prmusic.com", role: "user")
-user4 = User.create!(username: "bauti", email: "bauti@prmusic.com", role: "user")
+# Credenciales de demostración (solo para desarrollo): todos usan la contraseña "password123"
+DEMO_PASSWORD = "password123"
+admin = User.create!(username: "admin", email: "admin@prmusic.com", role: "admin", password: DEMO_PASSWORD)
+user1 = User.create!(username: "elmejor512", email: "elmejor512@prmusic.com", role: "user", password: DEMO_PASSWORD)
+user2 = User.create!(username: "luisperez576", email: "luis@prmusic.com", role: "user", password: DEMO_PASSWORD)
+user3 = User.create!(username: "carlosalberto12", email: "carlos@prmusic.com", role: "user", password: DEMO_PASSWORD)
+user4 = User.create!(username: "bauti", email: "bauti@prmusic.com", role: "user", password: DEMO_PASSWORD)
 
 puts "== Creando Géneros =="
 rock_nacional = Genre.create!(name: "Rock Nacional")
@@ -26,13 +29,20 @@ gardelitos = Artist.create!(name: "Los Gardelitos", bio: "Banda de rock de Bajo 
 almendra = Artist.create!(name: "Almendra", bio: "Banda pionera del rock argentino liderada por Luis Alberto Spinetta.")
 soda = Artist.create!(name: "Soda Stereo", bio: "Mítica banda de rock en español liderada por Gustavo Cerati.")
 
+puts "== Creando Álbumes =="
+# Sin portada: se sube desde el back-office (/admin/albums) para mostrar Active Storage
+album_almendra = Album.create!(title: "Almendra", artist: almendra)
+album_oktubre = Album.create!(title: "Oktubre", artist: redondos)
+
 puts "== Creando Canciones=="
 muchacha = Song.create!(
   title: "Muchacha ojos de papel",
   artist: almendra,
   genre: rock_nacional,
+  album: album_almendra,
   user: user4,
   original_key: "G",
+  status: :approved,
   content: <<~CONTENT
     [INTRO] G - D - Em - C
 
@@ -67,6 +77,7 @@ Song.create!(
   genre: heavy_metal,
   user: user1,
   original_key: "Em",
+  status: :approved,
   content: <<~CONTENT
     [INTRO] Em - G - D - C
 
@@ -94,8 +105,10 @@ Song.create!(
   title: "Rock para los dientes",
   artist: redondos,
   genre: rock_nacional,
+  album: album_oktubre,
   user: user2,
   original_key: "A",
+  status: :approved,
   content: <<~CONTENT
     [INTRO] A - D - A - E
 
@@ -125,6 +138,7 @@ Song.create!(
   genre: rock,
   user: user3,
   original_key: "D",
+  status: :pending, # queda para moderar desde el back-office
   content: <<~CONTENT
     [INTRO] D - G - A - D
 
@@ -154,6 +168,7 @@ Favorite.create!(user: user4, song: muchacha)
 puts "== Semillas cargadas exitosamente =="
 puts "Total Usuarios: #{User.count}"
 puts "Total Artistas: #{Artist.count}"
+puts "Total Álbumes: #{Album.count}"
 puts "Total Géneros: #{Genre.count}"
 puts "Total Canciones: #{Song.count}"
 puts "Total Favoritos: #{Favorite.count}"

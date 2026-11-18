@@ -12,4 +12,9 @@ class User < ApplicationRecord
   def admin?
     role == "admin"
   end
+
+  # Nunca exponer el hash de la contraseña ni el token en las respuestas JSON.
+  def as_json(options = {})
+    super({ except: %i[password_digest token] }.merge(options))
+  end
 end

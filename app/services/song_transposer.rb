@@ -1,6 +1,6 @@
 class SongTransposer
-  NOTES_SHARP = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-  NOTES_FLAT  = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+  NOTES_SHARP = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ]
+  NOTES_FLAT  = [ "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" ]
 
   # Regex para matchear acordes válidos
   CHORD_REGEX = /^[A-G][b#]?(?:m|min|maj|dim|aug)?(?:7|9|11|13)?(?:\/[A-G][b#]?)?$/
@@ -35,17 +35,17 @@ class SongTransposer
     is_minor = original_key.include?("m")
     if is_minor
       # Escalas menores que suelen llevar bemoles: Cm, Dm, Fm, Gm, Bbm
-      [0, 2, 5, 7, 10].include?(index)
+      [ 0, 2, 5, 7, 10 ].include?(index)
     else
       # Escalas mayores que suelen llevar bemoles: F, Bb, Eb, Ab, Db
-      [1, 3, 5, 8, 10].include?(index)
+      [ 1, 3, 5, 8, 10 ].include?(index)
     end
   end
 
   def self.is_chord_line?(line)
     tokens = line.split(/\s+/)
     return false if tokens.empty?
-    
+
     # La línea es de acordes si todos sus "palabras" son acordes válidos
     tokens.reject(&:empty?).all? { |token| token.match?(CHORD_REGEX) }
   end
@@ -71,7 +71,7 @@ class SongTransposer
     new_root = notes_array[new_index]
 
     # Manejar acordes invertidos con bajo (ej: G/B)
-    if mod.include?('/')
+    if mod.include?("/")
       slash_match = mod.match(/^(.*)\/([A-G][b#]?)$/)
       if slash_match
         bass_root = slash_match[2]

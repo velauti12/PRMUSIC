@@ -1,15 +1,16 @@
 module Api
   module V1
-    class UsersController < ApplicationController
-      before_action :authenticate_admin_token!, except: %i[index show create]
+    class UsersController < BaseController
+      before_action :authenticate_admin_token!, except: %i[show create]
       before_action :set_user, only: %i[show update destroy]
 
       def index
         render json: User.all
       end
 
+      # Información pública: sin email
       def show
-        render json: @user
+        render json: @user.as_json(only: %i[id username role created_at])
       end
 
       def create

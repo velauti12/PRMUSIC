@@ -13,3 +13,17 @@ module ActiveSupport
     # Add more helper methods to be used by all tests here...
   end
 end
+
+module ApiTestHelpers
+  def auth_headers(user)
+    { "Authorization" => "Bearer #{user.token}" }
+  end
+
+  def json
+    JSON.parse(response.body)
+  end
+end
+
+class ActionDispatch::IntegrationTest
+  include ApiTestHelpers
+end

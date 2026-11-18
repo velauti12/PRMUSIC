@@ -49,7 +49,9 @@ La idea de la aplicación es que los usuarios puedan consultar canciones con sus
    rails db:migrate
    rails db:seed
    ```
-   *El archivo `db/seeds.rb` carga géneros, artistas de rock nacional y metal (Almendra, Hermética, Redondos, Gardelitos), usuarios de prueba y canciones con acordes listas para probar.*
+   *El archivo `db/seeds.rb` carga géneros, artistas de rock nacional y metal (Almendra, Hermética, Redondos, Gardelitos), usuarios de prueba y canciones con acordes (3 aprobadas y 1 pendiente de moderación).*
+
+   **Usuarios de demostración** (contraseña `password123` para todos): `admin` (rol admin), `bauti`, `elmejor512`, `luisperez576`, `carlosalberto12`.
 
 4. **Iniciar el servidor de desarrollo:**
    ```bash
@@ -74,7 +76,7 @@ El back-office está desarrollado con las herramientas nativas de Rails (arquite
 ### Qué se puede hacer en el back-office:
 - **Dashboard:** Métricas generales de la plataforma (total de canciones, artistas, géneros y usuarios) y acceso a las canciones subidas recientemente.
 - **Moderación de canciones:** Revisar las canciones aportadas por la comunidad y marcarlas como **Aprobadas** o **Rechazadas** con un solo click.
-- **CRUD completo:** Crear, editar, listar y eliminar Artistas, Álbumes, Géneros y Canciones.
+- **CRUD completo:** Crear, editar, listar y eliminar Artistas, Álbumes (con carga de portada), Géneros y Canciones.
 - **Herramientas de cifra:** Probar el visor de acordes con autoscroll automático a distintas velocidades, transporte de tonalidad y visualización de portadas de álbumes.
 
 ---
@@ -92,27 +94,38 @@ Authorization: Bearer <token_del_usuario>
 
 ### Endpoints disponibles
 
+Todas las respuestas son JSON. Los errores devuelven `{ "error": "..." }` (401 sin token o token inválido, 403 sin permisos de admin, 404 recurso inexistente, 400 falta un parámetro) o `{ "errors": ["..."] }` en validaciones (422).
+
 #### Autenticación y Usuarios
-- `POST /api/v1/login`: Inicia sesión enviando `{ "username": "...", "password": "..." }`. Devuelve el token de sesión y rol del usuario.
-- `POST /api/v1/users`: Registra un usuario nuevo enviando `username`, `email` y `password`. Encola automáticamente el correo de bienvenida vía Action Mailer.
-- `GET /api/v1/users`: Listado de usuarios (requiere token de admin).
-- `GET /api/v1/users/:id`: Información pública de un usuario.
+- `POST /api/v1/login`: Inicia sesión con `{ "username": "...", "password": "..." }`. Devuelve `{ token, user_id, username, role }`.
+- `DELETE /api/v1/logout` *(token)*: Cierra la sesión invalidando el token actual.
+- `POST /api/v1/users`: Registra un usuario con `{ "user": { username, email, password, password_confirmation } }`. No devuelve token (luego hay que hacer login). Encola el correo de bienvenida.
+- `GET /api/v1/users` *(admin)*: Listado de usuarios.
+- `GET /api/v1/users/:id`: Información pública de un usuario (`id`, `username`, `role`, `created_at`).
+
+> Las respuestas nunca incluyen `password_digest` ni `token`.
 
 #### Canciones y Cifras
-- `GET /api/v1/songs`: Devuelve el catálogo de canciones **aprobadas** (incluye los datos del artista y del género).
-- `GET /api/v1/songs/:id`: Devuelve el detalle de una canción específica (título, acordes, letra, tono original, artista y género).
-- `POST /api/v1/songs`: Permite aportar una nueva canción enviando `title`, `artist_id`, `genre_id`, `original_key`, `content`, etc. Queda por defecto en estado `pending`.
-- `PUT/PATCH /api/v1/songs/:id`: Edición de una canción (requiere token de admin).
-- `DELETE /api/v1/songs/:id`: Eliminación de una canción (requiere token de admin).
+- `GET /api/v1/songs`: Catálogo de canciones **aprobadas** con artista y género. Filtros opcionales: `q` (título o artista), `artist_id`, `genre_id`.
+- Cada canción incluye `album: { id, title, cover_url }` (o `null` si no tiene álbum). `cover_url` es la URL pública de la portada subida con Active Storage, o `null` si el álbum no tiene portada.
+- `GET /api/v1/songs/:id`: Detalle de una canción. Las no aprobadas solo las ve su autor o un admin (para el resto, 404).
+- `GET /api/v1/songs/mine` *(token)*: Canciones aportadas por el usuario logueado, en cualquier estado (`pending`, `approved`, `rejected`).
+- `GET /api/v1/songs/:id/transpose?semitones=N`: Devuelve `{ id, original_key, semitones, key, content }` con los acordes transpuestos por `SongTransposer`.
+- `POST /api/v1/songs` *(token)*: Aporta una canción con `{ "song": { title, artist_id, genre_id, original_key, content, album_id } }`. El autor se toma del token y queda en estado `pending`.
+- `PUT/PATCH /api/v1/songs/:id` y `DELETE /api/v1/songs/:id` *(admin)*.
 
 #### Artistas y Géneros
-- `GET /api/v1/artists` y `POST /api/v1/artists` (POST requiere admin).
-- `GET /api/v1/genres` y `POST /api/v1/genres` (POST requiere admin).
+- `GET /api/v1/artists`, `GET /api/v1/genres`: Listados ordenados por nombre.
+- `GET /api/v1/artists/:id`, `GET /api/v1/genres/:id`: Detalle con sus canciones **aprobadas**.
+- `POST/PATCH/DELETE` *(admin)*.
 
-#### Favoritos
-- `GET /api/v1/favorites`: Listado de canciones marcadas como favoritas.
-- `POST /api/v1/favorites`: Guarda una canción como favorita enviando `{ "favorite": { "user_id": 1, "song_id": 2 } }`.
-- `DELETE /api/v1/favorites/:id`: Quita una canción de favoritos.
+#### Favoritos *(todos requieren token)*
+- `GET /api/v1/favorites`: Favoritos del usuario logueado, cada uno con su canción.
+- `POST /api/v1/favorites`: Agrega una canción aprobada con `{ "favorite": { "song_id": 2 } }`. 422 si ya era favorita.
+- `DELETE /api/v1/favorites/:id`: Quita un favorito propio (404 si es de otro usuario).
+
+#### CORS
+Habilitado con `rack-cors` para `/api/*`. Por defecto acepta `http://localhost:5173`; en producción se configura con `FRONTEND_URL` (admite varias URLs separadas por coma).
 
 ---
 
@@ -150,7 +163,7 @@ La aplicación cuenta con 6 modelos de Active Record interconectados:
 
 ## Active Storage y Action Mailer
 
-- **Active Storage:** Utilizado en el modelo `Album` para adjuntar la imagen de portada (`cover`). La carátula se muestra en la vista detallada de la canción en el back-office y queda disponible para su serialización hacia el cliente.
+- **Active Storage:** Utilizado en el modelo `Album` para adjuntar la imagen de portada (`cover`). La portada se sube desde `/admin/albums` (PNG, JPG o WEBP, hasta 5 MB, validado en el modelo), se muestra en el back-office y la API la expone como `album.cover_url` en cada canción para que el frontend la muestre.
 - **Action Mailer:** El mailer `UserMailer` se encarga de enviar el correo de bienvenida (`welcome_email`) tras el registro de un usuario mediante la API (`deliver_later` apoyado en Solid Queue).
 
 ---
@@ -170,7 +183,7 @@ En `app/services/song_transposer.rb` se encuentra implementada la lógica de tra
 Para verificar el correcto funcionamiento y la calidad del código:
 
 - **Tests automatizados (Minitest):**
-  Pruebas de modelos, validaciones de campos requeridos, unicidad y scopes de búsqueda:
+  Pruebas de modelos (validaciones, unicidad y scopes de búsqueda), del mailer y de integración de los endpoints de la API (`test/integration/api/v1`): login/logout, canciones, transposición, favoritos y permisos:
   ```bash
   rails test
   ```

@@ -1,15 +1,19 @@
 module Api
   module V1
-    class GenresController < ApplicationController
+    class GenresController < BaseController
       before_action :authenticate_admin_token!, except: %i[index show]
       before_action :set_genre, only: %i[show update destroy]
 
       def index
-        render json: Genre.all
+        render json: Genre.order(:name)
       end
 
       def show
-        render json: @genre, include: :songs
+        # Solo se listan las canciones aprobadas
+        songs = @genre.songs.approved.includes(:artist, :genre).order(:title)
+        render json: @genre.as_json.merge(
+          songs: songs.as_json(include: { artist: { only: %i[id name] }, genre: { only: %i[id name] } })
+        )
       end
 
       def create

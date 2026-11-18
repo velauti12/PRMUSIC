@@ -61,3 +61,5 @@ group :test do
 end
 
 gem "json", "~> 2.21"
+
+gem "rack-cors", "~> 3.0"

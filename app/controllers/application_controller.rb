@@ -1,13 +1,19 @@
 class ApplicationController < ActionController::Base
   allow_browser versions: :modern
-  stale_when_importmap_changes
   skip_before_action :verify_authenticity_token
 
   private
 
-  def authenticate_token!
+  # Devuelve el usuario dueño del token "Authorization: Bearer <token>", o nil.
+  def current_user_from_token
     token = request.headers["Authorization"]&.split(" ")&.last
-    @current_user = User.find_by(token: token)
+    return nil if token.blank?
+
+    User.find_by(token: token)
+  end
+
+  def authenticate_token!
+    @current_user = current_user_from_token
 
     unless @current_user
       render json: { error: "No autorizado. Token inválido o faltante." }, status: :unauthorized

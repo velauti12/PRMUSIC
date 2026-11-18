@@ -20,4 +20,9 @@ class Song < ApplicationRecord
   def transposed_content(semitones)
     SongTransposer.call(content, original_key, semitones)
   end
+
+  # Tonalidad resultante de transponer la original (ej: "Am" con -2 => "Gm")
+  def transposed_key(semitones)
+    SongTransposer.call(original_key, original_key, semitones).strip
+  end
 end

@@ -5,11 +5,15 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       post "login", to: "sessions#create"
-      resources :songs
+      delete "logout", to: "sessions#destroy"
+      resources :songs do
+        get :mine, on: :collection          # GET /api/v1/songs/mine
+        get :transpose, on: :member         # GET /api/v1/songs/:id/transpose?semitones=N
+      end
       resources :artists
       resources :genres
       resources :users
-      resources :favorites
+      resources :favorites, only: %i[index show create destroy]
     end
   end
 
@@ -22,6 +26,7 @@ Rails.application.routes.draw do
       end
     end
     resources :artists
+    resources :albums, except: :show
     resources :genres
     resources :users
   end

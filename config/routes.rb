@@ -34,7 +34,9 @@ Rails.application.routes.draw do
         patch :merge
       end
     end
-    resources :albums, except: :show
+    resources :albums, except: :show do
+      get :cover_search, on: :collection # busca tapas en Deezer desde el formulario
+    end
     resources :genres
     resources :users, only: %i[index show]
   end

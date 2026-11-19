@@ -1,5 +1,6 @@
 module Admin
-  # CRUD de álbumes con carga de portada (Active Storage).
+  # CRUD de álbumes. La tapa se puede subir a mano o elegir de las que encuentra Deezer
+  # (se busca desde el mismo formulario con el título y el artista).
   class AlbumsController < BaseController
     before_action :set_album, only: %i[edit update destroy]
     before_action :load_artists, only: %i[new create edit update]
@@ -14,8 +15,8 @@ module Admin
 
     def create
       @album = Album.new(album_params)
-      if @album.save
-        redirect_to admin_albums_path, notice: "Álbum '#{@album.title}' creado correctamente."
+      if attach_found_cover && @album.save
+        redirect_to admin_albums_path, notice: "Álbum \"#{@album.title}\" creado."
       else
         render :new, status: :unprocessable_entity
       end
@@ -25,10 +26,13 @@ module Admin
     end
 
     def update
-      if @album.update(album_params)
-        # Solo se quita la portada si se marcó la casilla y no se subió una nueva
-        @album.cover.purge_later if params.dig(:album, :remove_cover) == "1" && album_params[:cover].blank?
-        redirect_to admin_albums_path, notice: "Álbum '#{@album.title}' actualizado."
+      @album.assign_attributes(album_params)
+      if attach_found_cover && @album.save
+        # Solo se quita la tapa si se marcó la casilla y no se eligió otra
+        if params.dig(:album, :remove_cover) == "1" && album_params[:cover].blank? && params.dig(:album, :cover_url).blank?
+          @album.cover.purge_later
+        end
+        redirect_to admin_albums_path, notice: "Álbum \"#{@album.title}\" actualizado."
       else
         render :edit, status: :unprocessable_entity
       end
@@ -36,7 +40,20 @@ module Admin
 
     def destroy
       @album.destroy
-      redirect_to admin_albums_path, notice: "Álbum eliminado."
+      redirect_to admin_albums_path, notice: "Álbum borrado."
+    end
+
+    # GET /admin/albums/cover_search?title=...&artist_id=... (lo usa el formulario)
+    def cover_search
+      artist = Artist.find_by(id: params[:artist_id])
+      if params[:title].blank? || artist.nil?
+        return render json: { error: "Completá el título y elegí el artista para buscar la tapa." }, status: :unprocessable_entity
+      end
+
+      results = CoverFinder.search(artist: artist.name, title: params[:title])
+      render json: results.map(&:to_h)
+    rescue CoverFinder::Error => e
+      render json: { error: e.message }, status: :bad_gateway
     end
 
     private
@@ -51,6 +68,19 @@ module Admin
 
     def album_params
       params.require(:album).permit(:title, :artist_id, :cover)
+    end
+
+    # Si se eligió una tapa de Deezer (y no se subió un archivo), la descarga y la adjunta
+    def attach_found_cover
+      url = params.dig(:album, :cover_url)
+      return true if url.blank? || album_params[:cover].present?
+
+      image = CoverFinder.download(url)
+      @album.cover.attach(io: image, filename: "#{@album.title.to_s.parameterize}.jpg", content_type: "image/jpeg")
+      true
+    rescue CoverFinder::Error => e
+      @album.errors.add(:cover, e.message)
+      false
     end
   end
 end

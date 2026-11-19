@@ -3,7 +3,7 @@
 <header class="page-head">
   <div>
     <h1>Álbumes</h1>
-    <p>La portada se muestra en el sitio, en la canción y en los listados.</p>
+    <p>La tapa se muestra en el sitio. Al crear o editar un álbum podés buscarla en Deezer con el nombre o subirla a mano.</p>
   </div>
   <div class="page-actions">
     <%= link_to "Nuevo álbum", new_admin_album_path, class: "btn-primary" %>
@@ -31,7 +31,7 @@
             <td class="num"><%= album.songs.size %></td>
             <td>
               <div class="actions">
-                <%= link_to album.cover.attached? ? "Editar" : "Subir portada", edit_admin_album_path(album), class: "btn-link" %>
+                <%= link_to album.cover.attached? ? "Editar" : "Buscar tapa", edit_admin_album_path(album), class: album.cover.attached? ? "btn-link" : "btn btn-sm" %>
                 <%= delete_button admin_album_path(album), confirm: "¿Borrar el álbum #{album.title}? Sus canciones quedan sin álbum." %>
               </div>
             </td>

@@ -45,7 +45,7 @@ class AdminAlbumsTest < ActionDispatch::IntegrationTest
 
     get "/admin/albums/#{album.id}/edit", headers: @auth
     assert_response :ok
-    assert_includes response.body, "Quitar portada actual"
+    assert_includes response.body, "Quitar la tapa actual"
 
     patch "/admin/albums/#{album.id}", headers: @auth, params: { album: { title: album.title, remove_cover: "1" } }
     assert_redirected_to "/admin/albums"

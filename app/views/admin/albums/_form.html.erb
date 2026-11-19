@@ -17,20 +17,100 @@
     </div>
   </div>
 
-  <div class="field">
-    <%= f.label :cover, "Portada" %>
-    <p class="hint">PNG, JPG o WEBP de hasta 5 MB.</p>
+  <fieldset class="field cover-field">
+    <legend>Tapa</legend>
+
     <% if @album.persisted? && @album.cover.attached? %>
       <div class="current-cover">
-        <%= image_tag @album.cover, alt: "Portada actual" %>
-        <label class="check"><%= check_box_tag "album[remove_cover]", "1", false %> Quitar portada actual</label>
+        <%= image_tag @album.cover, alt: "Tapa actual" %>
+        <label class="check"><%= check_box_tag "album[remove_cover]", "1", false %> Quitar la tapa actual</label>
       </div>
     <% end %>
+
+    <div class="cover-search">
+      <button type="button" class="btn" id="cover-search-btn"
+              data-url="<%= cover_search_admin_albums_path %>">Buscar tapa en Deezer</button>
+      <span class="hint" id="cover-search-status" role="status">Busca con el título y el artista que pusiste arriba.</span>
+    </div>
+    <%= hidden_field_tag "album[cover_url]", params.dig(:album, :cover_url), id: "cover-url" %>
+    <ul class="cover-options" id="cover-options"></ul>
+
+    <p class="hint">O subila a mano (PNG, JPG o WEBP de hasta 5 MB):</p>
     <%= f.file_field :cover, accept: "image/png,image/jpeg,image/webp" %>
-  </div>
+  </fieldset>
 
   <div class="form-actions">
     <%= f.submit @album.new_record? ? "Crear álbum" : "Guardar cambios", class: "btn-primary" %>
     <%= link_to "Cancelar", admin_albums_path, class: "btn-link" %>
   </div>
 <% end %>
+
+<script>
+  (function () {
+    const button = document.getElementById('cover-search-btn')
+    const status = document.getElementById('cover-search-status')
+    const list = document.getElementById('cover-options')
+    const hidden = document.getElementById('cover-url')
+    const title = document.getElementById('album_title')
+    const artist = document.getElementById('album_artist_id')
+
+    function choose(item, li) {
+      hidden.value = item.image_url
+      list.querySelectorAll('li').forEach((el) => el.classList.remove('is-chosen'))
+      li.classList.add('is-chosen')
+      status.textContent = 'Elegiste "' + item.title + '". Se guarda cuando apretás el botón de abajo.'
+    }
+
+    function render(items) {
+      list.innerHTML = ''
+      items.forEach((item) => {
+        const li = document.createElement('li')
+        const img = document.createElement('img')
+        img.src = item.thumb_url
+        img.alt = 'Tapa de ' + item.title
+        const caption = document.createElement('div')
+        caption.className = 'cover-caption'
+        const name = document.createElement('strong')
+        name.textContent = item.title
+        const by = document.createElement('span')
+        by.className = 'muted small'
+        by.textContent = item.artist
+        caption.append(name, by)
+        const pick = document.createElement('button')
+        pick.type = 'button'
+        pick.className = 'btn btn-sm'
+        pick.textContent = 'Usar esta'
+        pick.addEventListener('click', () => choose(item, li))
+        li.append(img, caption, pick)
+        list.append(li)
+      })
+    }
+
+    button.addEventListener('click', async () => {
+      const params = new URLSearchParams({ title: title.value.trim(), artist_id: artist.value })
+      button.disabled = true
+      status.textContent = 'Buscando...'
+      list.innerHTML = ''
+      hidden.value = ''
+      try {
+        // Se arma con location.origin para que no arrastre usuario:contraseña si estuvieran en la URL
+        const url = new URL(button.dataset.url, location.origin)
+        url.search = params
+        const res = await fetch(url, { headers: { Accept: 'application/json' } })
+        const data = await res.json()
+        if (!res.ok) {
+          status.textContent = data.error
+        } else if (data.length === 0) {
+          status.textContent = 'No encontramos tapas. Revisá cómo está escrito el título o subila a mano.'
+        } else {
+          status.textContent = 'Elegí la que corresponde:'
+          render(data)
+        }
+      } catch (e) {
+        status.textContent = 'No se pudo buscar. Probá de nuevo.'
+      } finally {
+        button.disabled = false
+      }
+    })
+  })()
+</script>

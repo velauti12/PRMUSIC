@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
   </head>
-  <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <h2>¡Hola <%= @user.username %>, bienvenido a PRMUSIC!</h2>
-    <p>
-      Te has registrado exitosamente. Estamos muy felices de que te unas a nuestra comunidad de músicos y amantes de la música.
-    </p>
-    <p>
-      Para acceder a tu cuenta, puedes iniciar sesión usando el siguiente enlace:<br>
-      <a href="<%= @url %>">Iniciar sesión</a>
-    </p>
-    <p>¡Esperamos que disfrutes de la plataforma!</p>
+  <body style="margin: 0; padding: 24px; background: #f7f9fc; font-family: Arial, Helvetica, sans-serif; color: #1b2a4a; line-height: 1.6;">
+    <div style="max-width: 520px; margin: 0 auto; background: #ffffff; border: 1px solid #cbd8ec; border-top: 3px solid #1b2a4a; padding: 28px 28px 28px 40px; border-left: 2px solid #eba3ac;">
+      <p style="margin: 0 0 16px; font-size: 22px; font-weight: bold;">PRMUSIC</p>
+      <p style="margin: 0 0 12px;">Hola <strong><%= @user.username %></strong>, ya tenés tu cuenta.</p>
+      <p style="margin: 0 0 12px;">
+        Ahora podés guardar canciones en favoritos y subir las que no estén. Las que subas las revisa un admin antes de publicarlas.
+      </p>
+      <p style="margin: 24px 0;">
+        <a href="<%= @url %>" style="background: #1b2a4a; color: #ffffff; padding: 10px 18px; border-radius: 3px; text-decoration: none; font-weight: bold;">Iniciar sesión</a>
+      </p>
+      <p style="margin: 0; color: #55668a; font-size: 14px;">Si no fuiste vos, ignorá este mail.</p>
+    </div>
   </body>
 </html>

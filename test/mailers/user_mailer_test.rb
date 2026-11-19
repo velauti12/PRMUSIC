@@ -8,5 +8,7 @@ class UserMailerTest < ActionMailer::TestCase
     assert_equal [ user.email ], mail.to
     assert_equal [ "no-reply@prmusic.com" ], mail.from
     assert_match user.username, mail.body.encoded
+    # El link de login apunta al front, no a la API
+    assert_match "5173/login", mail.body.encoded
   end
 end

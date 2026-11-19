@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Bandeja de mails de prueba (solo en desarrollo)
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+
   get "up" => "rails/health#show", as: :rails_health_check
 
 

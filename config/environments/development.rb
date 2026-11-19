@@ -31,8 +31,23 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
+  # Mails: si están las variables SMTP_* se mandan de verdad (por ej. con Gmail),
+  # si no, quedan guardados para verlos en http://localhost:3000/letter_opener
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.raise_delivery_errors = true
+    config.action_mailer.smtp_settings = {
+      address: ENV["SMTP_ADDRESS"],
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      user_name: ENV["SMTP_USERNAME"],
+      password: ENV["SMTP_PASSWORD"],
+      authentication: :plain,
+      enable_starttls_auto: true
+    }
+  else
+    config.action_mailer.delivery_method = :letter_opener_web
+    config.action_mailer.raise_delivery_errors = true
+  end
 
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false

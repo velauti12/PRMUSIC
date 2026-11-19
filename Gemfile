@@ -63,3 +63,7 @@ end
 gem "json", "~> 2.21"
 
 gem "rack-cors", "~> 3.0"
+
+gem "letter_opener_web", "~> 3.0", group: :development
+
+gem "dotenv", "~> 3.2", groups: [ :development, :test ]

@@ -17,6 +17,13 @@
     <%= f.text_area :bio, rows: 5, maxlength: 1000 %>
   </div>
 
+  <% if @artist.persisted? %>
+    <div class="field" style="max-width: 240px;">
+      <%= f.label :status, "Estado" %>
+      <%= f.select :status, [ [ "Pendiente", "pending" ], [ "Aprobado", "approved" ] ] %>
+    </div>
+  <% end %>
+
   <div class="form-actions">
     <%= f.submit @artist.new_record? ? "Crear artista" : "Guardar cambios", class: "btn-primary" %>
     <%= link_to "Cancelar", admin_artists_path, class: "btn-link" %>

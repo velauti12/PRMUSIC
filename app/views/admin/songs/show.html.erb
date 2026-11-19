@@ -55,6 +55,12 @@
       <% if @song.pending? %>
         <p>Revisá que los acordes estén bien ubicados antes de publicarla.</p>
       <% end %>
+      <% if @song.artist.pending? %>
+        <p>
+          El artista es nuevo, lo propuso quien subió la canción. Al aprobarla se aprueba también.
+          <%= link_to "Revisar artista", edit_admin_artist_path(@song.artist) %>
+        </p>
+      <% end %>
       <% unless @song.approved? %>
         <%= button_to "Aprobar y publicar", approve_admin_song_path(@song), method: :patch, class: "btn-approve" %>
       <% end %>

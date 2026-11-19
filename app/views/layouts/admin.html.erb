@@ -25,7 +25,11 @@
           Canciones
           <% if pending.positive? %><span class="nav-count" title="Pendientes de revisar"><%= pending %></span><% end %>
         <% end %>
-        <%= link_to "Artistas", admin_artists_path, class: ("active" if controller_name == "artists") %>
+        <% pending_artists = Artist.pending.count %>
+        <%= link_to admin_artists_path, class: ("active" if controller_name == "artists") do %>
+          Artistas
+          <% if pending_artists.positive? %><span class="nav-count" title="Artistas propuestos sin revisar"><%= pending_artists %></span><% end %>
+        <% end %>
         <%= link_to "Álbumes", admin_albums_path, class: ("active" if controller_name == "albums") %>
         <%= link_to "Géneros", admin_genres_path, class: ("active" if controller_name == "genres") %>
         <%= link_to "Usuarios", admin_users_path, class: ("active" if controller_name == "users") %>

@@ -4,6 +4,7 @@ class User < ApplicationRecord
 
   has_many :songs, dependent: :destroy
   has_many :favorites, dependent: :destroy
+  has_many :proposed_artists, class_name: "Artist", dependent: :nullify
   has_many :favorite_songs, through: :favorites, source: :song
 
   validates :username, presence: true, uniqueness: true, length: { minimum: 3, maximum: 30 }, format: { with: /\A[a-zA-Z0-9_]+\z/, message: "solo permite letras, números y guiones bajos" }

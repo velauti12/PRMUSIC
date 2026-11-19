@@ -1,6 +1,33 @@
 <% content_for :title, @artist.name %>
 
 <%= link_to "Artistas", admin_artists_path, class: "back-link" %>
-<header class="page-head"><h1><%= @artist.name %></h1></header>
+<header class="page-head">
+  <div>
+    <h1><%= @artist.name %></h1>
+    <% if @artist.pending? %>
+      <p>
+        <%= artist_status_tag(@artist) %>
+        Lo propuso <%= @artist.user&.username || "un usuario" %> al subir
+        <% if (song = @artist.songs.first) %><%= link_to song.title, admin_song_path(song) %><% else %>una canción<% end %>.
+        Revisá que el nombre esté bien escrito.
+      </p>
+    <% end %>
+  </div>
+</header>
 
 <%= render "form" %>
+
+<% if @artist.pending? && @others.any? %>
+  <h2 class="section">¿Ya estaba cargado?</h2>
+  <p class="muted" style="max-width: 60ch; margin-bottom: 1rem;">
+    Si es el mismo que otro artista (por ejemplo, escrito distinto), unilos: las canciones y álbumes pasan al que elijas y este se borra.
+  </p>
+  <%= form_with url: merge_admin_artist_path(@artist), method: :patch, local: true, class: "filters",
+                html: { onsubmit: "return confirm(#{"¿Unir #{@artist.name} con el artista elegido? No se puede deshacer.".to_json})" } do |f| %>
+    <div class="field">
+      <%= f.label :target_id, "Unir con" %>
+      <%= f.select :target_id, options_from_collection_for_select(@others, :id, :name), { prompt: "Elegí el artista correcto" }, required: true %>
+    </div>
+    <%= f.submit "Unir artistas", class: "btn", name: nil %>
+  <% end %>
+<% end %>

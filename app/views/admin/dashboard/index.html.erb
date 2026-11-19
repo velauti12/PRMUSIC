@@ -36,7 +36,7 @@
         <div>
           <%= link_to song.title, admin_song_path(song), class: "title" %>
           <div class="who">
-            <%= song.artist.name %>, subida por <%= song.user&.username || "sin usuario" %>
+            <%= song.artist.name %><% if song.artist.pending? %> <span class="status status-pending">artista nuevo</span><% end %>, subida por <%= song.user&.username || "sin usuario" %>
             el <%= song.created_at.strftime("%d/%m") %>
           </div>
         </div>

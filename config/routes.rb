@@ -28,7 +28,12 @@ Rails.application.routes.draw do
         patch :reject
       end
     end
-    resources :artists
+    resources :artists do
+      member do
+        patch :approve
+        patch :merge
+      end
+    end
     resources :albums, except: :show
     resources :genres
     resources :users, only: %i[index show]

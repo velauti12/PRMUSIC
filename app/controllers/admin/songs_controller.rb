@@ -52,9 +52,16 @@ module Admin
       redirect_to admin_songs_path, notice: "Canción \"#{title}\" borrada."
     end
 
+    # Si el artista lo propuso un usuario y todavía no se revisó, se aprueba junto con la canción
     def approve
-      @song.approved!
-      redirect_back fallback_location: admin_songs_path, notice: "\"#{@song.title}\" aprobada. Ya se ve en el sitio."
+      new_artist = @song.artist.pending?
+      Song.transaction do
+        @song.artist.approved! if new_artist
+        @song.approved!
+      end
+      message = "\"#{@song.title}\" aprobada. Ya se ve en el sitio."
+      message += " También se aprobó el artista #{@song.artist.name}." if new_artist
+      redirect_back fallback_location: admin_songs_path, notice: message
     end
 
     def reject

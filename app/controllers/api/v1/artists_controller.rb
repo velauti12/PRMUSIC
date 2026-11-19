@@ -2,16 +2,17 @@ module Api
   module V1
     class ArtistsController < BaseController
       before_action :authenticate_admin_token!, except: %i[index show]
-      before_action :set_artist, only: %i[show update destroy]
+      before_action :set_artist, only: %i[update destroy]
 
       def index
-        render json: Artist.order(:name)
+        render json: Artist.approved.order(:name).as_json(only: %i[id name bio])
       end
 
       def show
+        @artist = Artist.approved.find(params[:id])
         # Solo se listan las canciones aprobadas
         songs = @artist.songs.approved.includes(:artist, :genre).order(:title)
-        render json: @artist.as_json.merge(
+        render json: @artist.as_json(only: %i[id name bio]).merge(
           songs: songs.as_json(include: { artist: { only: %i[id name] }, genre: { only: %i[id name] } })
         )
       end

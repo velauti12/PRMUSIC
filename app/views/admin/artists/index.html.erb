@@ -3,7 +3,7 @@
 <header class="page-head">
   <div>
     <h1>Artistas</h1>
-    <p>Si borrás un artista se borran también sus álbumes y canciones.</p>
+    <p>Los que proponen los usuarios al subir una canción aparecen primero. Si el nombre está mal, editalo; si ya existía, unilo con el que estaba.</p>
   </div>
   <div class="page-actions">
     <%= link_to "Nuevo artista", new_admin_artist_path, class: "btn-primary" %>
@@ -15,16 +15,23 @@
 <% else %>
   <div class="table-wrap">
     <table class="ruled">
-      <thead><tr><th>Artista</th><th>Reseña</th><th>Canciones</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+      <thead><tr><th>Artista</th><th>Reseña</th><th>Canciones</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead>
       <tbody>
         <% @artists.each do |artist| %>
           <tr>
-            <td class="title"><%= link_to artist.name, edit_admin_artist_path(artist) %></td>
-            <td class="muted small"><%= truncate(artist.bio, length: 90) %></td>
+            <td class="title">
+              <%= link_to artist.name, edit_admin_artist_path(artist) %>
+              <% if artist.pending? && artist.user %><div class="muted small">propuesto por <%= artist.user.username %></div><% end %>
+            </td>
+            <td class="muted small"><%= truncate(artist.bio, length: 80) %></td>
             <td class="num"><%= artist.songs.size %></td>
+            <td><%= artist_status_tag(artist) %></td>
             <td>
               <div class="actions">
-                <%= link_to "Editar", edit_admin_artist_path(artist), class: "btn-link" %>
+                <% if artist.pending? %>
+                  <%= button_to "Aprobar", approve_admin_artist_path(artist), method: :patch, class: "btn-approve btn-sm" %>
+                <% end %>
+                <%= link_to artist.pending? ? "Revisar" : "Editar", edit_admin_artist_path(artist), class: "btn-link" %>
                 <%= delete_button admin_artist_path(artist),
                       confirm: "¿Borrar a #{artist.name}? Se borran también sus #{artist.songs.size} canciones y sus álbumes." %>
               </div>

@@ -14,6 +14,12 @@ module AdminHelper
     tag.span(status_label(song.status), class: "status status-#{song.status}")
   end
 
+  def artist_status_tag(artist)
+    return tag.span("Aprobado", class: "status status-approved") if artist.approved?
+
+    tag.span("Pendiente", class: "status status-pending")
+  end
+
   def status_options
     Song.statuses.keys.map { |s| [ status_label(s), s ] }
   end

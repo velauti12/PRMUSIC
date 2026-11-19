@@ -37,14 +37,24 @@ module Api
         }
       end
 
-      # POST /api/v1/songs — el autor es siempre el usuario del token y queda en "pending"
+      # POST /api/v1/songs — el autor es siempre el usuario del token y queda en "pending".
+      # Si el artista no está cargado se puede mandar `artist_name` en vez de `artist_id`:
+      # se usa el que ya exista con ese nombre o se crea uno nuevo pendiente de revisión.
       def create
         song = @current_user.songs.new(song_params.except(:user_id))
         song.status = :pending
-        if song.save
+
+        Song.transaction do
+          song.artist = find_or_propose_artist if song.artist_id.blank? && params.dig(:song, :artist_name).present?
+          raise ActiveRecord::Rollback unless song.artist.nil? || song.artist.persisted?
+          raise ActiveRecord::Rollback unless song.save
+        end
+
+        if song.persisted?
           render json: song_json(song), status: :created
         else
-          render json: { errors: song.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: song.errors.full_messages + (song.artist&.errors&.full_messages || []) },
+                 status: :unprocessable_entity
         end
       end
 
@@ -75,6 +85,12 @@ module Api
         return if user && (user.admin? || @song.user_id == user.id)
 
         render json: { error: "Recurso no encontrado" }, status: :not_found
+      end
+
+      def find_or_propose_artist
+        name = params.dig(:song, :artist_name).to_s.squish
+        Artist.find_by_name(name) ||
+          Artist.create(name: name, status: :pending, user: @current_user)
       end
 
       def song_params

@@ -42,4 +42,12 @@ class SongTest < ActiveSupport::TestCase
     assert_not song.valid?
     assert song.errors[:album].any?
   end
+
+  test "limpia la letra pegada de una página web" do
+    pegada = "​E        G#m\r\n​Solo la musica esta   \r\n"
+    song = Song.create!(title: "Pegada", artist: @artist, genre: @genre, user: @user, original_key: "E", content: pegada)
+    assert_equal "E        G#m\nSolo la musica esta\n", song.content
+    assert_includes song.transposed_content(2), "F#        A#m"
+  end
+
 end

@@ -1,8 +1,11 @@
-<% content_for :page_title, "Aportar un Nuevo Tema" %>
+<% content_for :title, "Nueva canción" %>
 
-<div class="section-heading" style="margin-bottom: 24px;">
-  <h2 class="section-title">Nueva Cifra / Tablatura</h2>
-  <%= link_to "← Volver", admin_songs_path, class: "btn-sm btn-secondary" %>
-</div>
+<%= link_to "Canciones", admin_songs_path, class: "back-link" %>
+<header class="page-head">
+  <div>
+    <h1>Nueva canción</h1>
+    <p>Las que cargás desde acá quedan a tu nombre y podés publicarlas directo.</p>
+  </div>
+</header>
 
 <%= render "form" %>

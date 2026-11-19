@@ -31,8 +31,11 @@ module Admin
     end
 
     def destroy
-      @genre.destroy
-      redirect_to admin_genres_path, notice: "Género eliminado."
+      if @genre.destroy
+        redirect_to admin_genres_path, notice: "Género borrado."
+      else
+        redirect_to admin_genres_path, alert: "No se puede borrar #{@genre.name}: todavía tiene canciones."
+      end
     end
 
     private

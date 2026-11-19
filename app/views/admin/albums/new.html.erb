@@ -1,6 +1,6 @@
-<% content_for :page_title, "Registrar Nuevo Álbum" %>
-<div class="section-heading" style="margin-bottom: 24px;">
-  <h2 class="section-title">Nuevo Álbum</h2>
-  <%= link_to "← Volver", admin_albums_path, class: "btn-sm btn-secondary" %>
-</div>
+<% content_for :title, "Nuevo álbum" %>
+
+<%= link_to "Álbumes", admin_albums_path, class: "back-link" %>
+<header class="page-head"><h1>Nuevo álbum</h1></header>
+
 <%= render "form" %>

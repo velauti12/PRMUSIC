@@ -1,36 +1,25 @@
-<% content_for :page_title, "Comunidad y Usuarios" %>
+<% content_for :title, "Usuarios" %>
 
-<div class="section-heading">
-  <h2 class="section-title"> Usuarios Registrados</h2>
-</div>
-
-<div class="table-card" style="max-width: 800px;">
-  <div class="table-responsive">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre de Usuario</th>
-          <th>Email</th>
-          <th>Rol</th>
-          <th>Cifras Aportadas</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @users.each do |user| %>
-          <tr>
-            <td>#<%= user.id %></td>
-            <td><strong style="color: #fff;"><%= user.username %></strong></td>
-            <td style="color: var(--text-dim);"><%= user.email %></td>
-            <td>
-              <span class="badge-admin" style="<%= 'background: rgba(6,182,212,0.15); color: #06b6d4; border-color: rgba(6,182,212,0.3);' unless user.admin? %>">
-                <%= user.role %>
-              </span>
-            </td>
-            <td><span class="tag-genre"><%= user.songs.count %> canciones</span></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+<header class="page-head">
+  <div>
+    <h1>Usuarios</h1>
+    <p>Las cuentas se crean desde el sitio. Acá podés ver qué aportó cada uno.</p>
   </div>
+</header>
+
+<div class="table-wrap">
+  <table class="ruled">
+    <thead><tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Canciones</th><th>Alta</th></tr></thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td class="title"><%= link_to user.username, admin_user_path(user) %></td>
+          <td class="muted"><%= user.email %></td>
+          <td><% if user.admin? %><span class="role-admin">admin</span><% else %><span class="muted">usuario</span><% end %></td>
+          <td class="num"><%= user.songs_count %></td>
+          <td class="muted"><%= user.created_at.strftime("%d/%m/%Y") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>

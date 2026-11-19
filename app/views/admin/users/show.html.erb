@@ -1,0 +1,41 @@
+<% content_for :title, @user.username %>
+
+<%= link_to "Usuarios", admin_users_path, class: "back-link" %>
+<header class="page-head">
+  <div>
+    <h1><%= @user.username %></h1>
+    <p><%= @user.email %>, desde el <%= @user.created_at.strftime("%d/%m/%Y") %><%= " (admin)" if @user.admin? %></p>
+  </div>
+</header>
+
+<h2 class="section">Canciones que aportó</h2>
+<% if @songs.any? %>
+  <div class="table-wrap">
+    <table class="ruled">
+      <thead><tr><th>Canción</th><th>Artista</th><th>Fecha</th><th>Estado</th></tr></thead>
+      <tbody>
+        <% @songs.each do |song| %>
+          <tr>
+            <td class="title"><%= link_to song.title, admin_song_path(song) %></td>
+            <td><%= song.artist.name %></td>
+            <td class="muted"><%= song.created_at.strftime("%d/%m/%Y") %></td>
+            <td><%= status_tag(song) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="empty">No aportó canciones.</p>
+<% end %>
+
+<h2 class="section">Favoritas</h2>
+<% if @favorites.any? %>
+  <ul class="queue">
+    <% @favorites.each do |song| %>
+      <li><span><%= link_to song.title, admin_song_path(song), class: "title" %> <span class="who"><%= song.artist.name %></span></span></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="empty">No tiene favoritas.</p>
+<% end %>

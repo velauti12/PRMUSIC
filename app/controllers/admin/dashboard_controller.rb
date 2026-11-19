@@ -1,11 +1,14 @@
 module Admin
   class DashboardController < BaseController
     def index
-      @songs_count = Song.count
-      @artists_count = Artist.count
-      @genres_count = Genre.count
-      @users_count = User.count
-      @recent_songs = Song.includes(:artist, :user, :genre).order(created_at: :desc).limit(5)
+      @pending_songs = Song.pending.includes(:artist, :user).order(:created_at)
+      @counts = {
+        songs: Song.approved.count,
+        artists: Artist.count,
+        albums: Album.count,
+        users: User.count
+      }
+      @recent_songs = Song.includes(:artist, :user).order(created_at: :desc).limit(5)
     end
   end
 end

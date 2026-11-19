@@ -1,35 +1,32 @@
-<% content_for :page_title, "Gestión de Artistas y Bandas" %>
+<% content_for :title, "Artistas" %>
 
-<div class="section-heading">
-  <h2 class="section-title"> Lista de Artistas Registrados</h2>
-  <%= link_to " Nuevo Artista", new_admin_artist_path, class: "btn-accent" %>
-</div>
+<header class="page-head">
+  <div>
+    <h1>Artistas</h1>
+    <p>Si borrás un artista se borran también sus álbumes y canciones.</p>
+  </div>
+  <div class="page-actions">
+    <%= link_to "Nuevo artista", new_admin_artist_path, class: "btn-primary" %>
+  </div>
+</header>
 
-<div class="table-card">
-  <div class="table-responsive">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre del Artista / Banda</th>
-          <th>Biografía / Descripción</th>
-          <th>Canciones Asociadas</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+<% if @artists.empty? %>
+  <p class="empty">Todavía no hay artistas.</p>
+<% else %>
+  <div class="table-wrap">
+    <table class="ruled">
+      <thead><tr><th>Artista</th><th>Reseña</th><th>Canciones</th><th><span class="sr-only">Acciones</span></th></tr></thead>
       <tbody>
         <% @artists.each do |artist| %>
           <tr>
-            <td>#<%= artist.id %></td>
-            <td><strong style="color: #fff;"><%= artist.name %></strong></td>
-            <td style="color: var(--text-muted); font-size: 13px; max-width: 400px;"><%= artist.bio.presence || "Sin biografía" %></td>
+            <td class="title"><%= link_to artist.name, edit_admin_artist_path(artist) %></td>
+            <td class="muted small"><%= truncate(artist.bio, length: 90) %></td>
+            <td class="num"><%= artist.songs.size %></td>
             <td>
-              <span class="tag-genre"><%= artist.songs.count %> temas</span>
-            </td>
-            <td>
-              <div class="card-actions">
-                <%= link_to " Editar", edit_admin_artist_path(artist), class: "btn-sm btn-secondary" %>
-                <%= button_to "🗑", admin_artist_path(artist), method: :delete, data: { turbo_confirm: "¿Eliminar este artista y sus canciones asociadas?" }, class: "btn-sm btn-danger-outline", form: { style: "display:inline-block;" } %>
+              <div class="actions">
+                <%= link_to "Editar", edit_admin_artist_path(artist), class: "btn-link" %>
+                <%= delete_button admin_artist_path(artist),
+                      confirm: "¿Borrar a #{artist.name}? Se borran también sus #{artist.songs.size} canciones y sus álbumes." %>
               </div>
             </td>
           </tr>
@@ -37,4 +34,4 @@
       </tbody>
     </table>
   </div>
-</div>
+<% end %>

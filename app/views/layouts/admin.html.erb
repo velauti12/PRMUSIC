@@ -3,84 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= content_for?(:title) ? yield(:title) : "PRMUSIC Back-Office" %></title>
+  <title><%= content_for?(:title) ? "#{yield(:title)} | PRMUSIC admin" : "PRMUSIC admin" %></title>
   <%= csrf_meta_tags %>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
   <%= stylesheet_link_tag "admin" %>
 </head>
-<body class="admin-body">
-  <div class="app-container">
-    
+<body>
+  <div class="admin">
     <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="brand-logo">
-          <span class="brand-name">PR<strong>MUSIC</strong></span>
-        </div>
-        <span class="badge-admin">Back Office</span>
-      </div>
+      <%= link_to admin_root_path, class: "brand" do %>
+        <span class="brand-name">PRMUSIC</span>
+        <span class="brand-sub">Back-office</span>
+      <% end %>
 
-      <nav class="sidebar-nav">
-        <div class="nav-section-title">GESTIÓN DE CATÁLOGO</div>
-        <a href="<%= admin_songs_path %>" class="nav-item <%= 'active' if controller_name == 'songs' %>">
-          <span>Canciones y Cifras</span>
-        </a>
-
-        <a href="<%= admin_artists_path %>" class="nav-item <%= 'active' if controller_name == 'artists' %>">
-          <span>Artistas</span>
-        </a>
-
-        <a href="<%= admin_albums_path %>" class="nav-item <%= 'active' if controller_name == 'albums' %>">
-          <span>Álbumes</span>
-        </a>
-
-        <a href="<%= admin_genres_path %>" class="nav-item <%= 'active' if controller_name == 'genres' %>">
-          <span>Géneros</span>
-        </a>
+      <nav class="side-nav" aria-label="Secciones">
+        <% pending = Song.pending.count %>
+        <%= link_to "Inicio", admin_root_path, class: ("active" if controller_name == "dashboard") %>
+        <%= link_to admin_songs_path, class: ("active" if controller_name == "songs") do %>
+          Canciones
+          <% if pending.positive? %><span class="nav-count" title="Pendientes de revisar"><%= pending %></span><% end %>
+        <% end %>
+        <%= link_to "Artistas", admin_artists_path, class: ("active" if controller_name == "artists") %>
+        <%= link_to "Álbumes", admin_albums_path, class: ("active" if controller_name == "albums") %>
+        <%= link_to "Géneros", admin_genres_path, class: ("active" if controller_name == "genres") %>
+        <%= link_to "Usuarios", admin_users_path, class: ("active" if controller_name == "users") %>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="user-pill">
-          <div class="user-avatar">AD</div>
-          <div class="user-info">
-            <span class="user-name">Administrador</span>
-            <span class="user-role">admin@prmusic.com</span>
-          </div>
-        </div>
+      <div class="sidebar-foot">
+        <%= link_to "Ir al sitio", front_url, target: "_blank", rel: "noopener" %>
       </div>
     </aside>
 
-    
-    <main class="main-content">
-      
-      <header class="topbar">
-        <div class="topbar-left">
-          <h1 class="page-title"><%= yield(:page_title) || "Panel de Control" %></h1>
-        </div>
-        <div class="topbar-right">
-          <a href="<%= new_admin_song_path %>" class="btn-accent">
-            <span> Nueva Canción</span>
-          </a>
-        </div>
-      </header>
+    <main class="content">
+      <% if notice %><p class="flash flash-notice" role="status"><%= notice %></p><% end %>
+      <% if alert %><p class="flash flash-alert" role="alert"><%= alert %></p><% end %>
 
-      
-      <% if notice %>
-        <div class="alert alert-success">
-          <%= notice %>
-        </div>
-      <% end %>
-      <% if alert %>
-        <div class="alert alert-danger">
-          <%= alert %>
-        </div>
-      <% end %>
-
-      
-      <div class="content-wrapper">
-        <%= yield %>
-      </div>
+      <%= yield %>
     </main>
   </div>
 </body>

@@ -1,44 +1,36 @@
-<%= form_with model: [:admin, @album], local: true do |f| %>
+<%= form_with model: [:admin, @album], local: true, class: "form" do |f| %>
   <% if @album.errors.any? %>
-    <div class="alert alert-danger">
-      <strong><%= pluralize(@album.errors.count, "error") %> impidieron guardar el álbum:</strong>
-      <ul style="margin-top: 6px; padding-left: 20px;">
-        <% @album.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
+    <div class="form-errors" role="alert">
+      No se pudo guardar:
+      <ul><% @album.errors.full_messages.each do |msg| %><li><%= msg %></li><% end %></ul>
     </div>
   <% end %>
 
-  <div class="form-card">
-    <div class="form-section-title">Datos del Álbum</div>
-
-    <div class="form-group">
-      <%= f.label :title, "Título del álbum", class: "form-label" %>
-      <%= f.text_field :title, placeholder: "Ej: Almendra, Ácido Argentino...", class: "form-control", required: true %>
+  <div class="row">
+    <div class="field">
+      <%= f.label :title, "Título" %>
+      <%= f.text_field :title, required: true %>
     </div>
-
-    <div class="form-group" style="margin-top: 16px;">
-      <%= f.label :artist_id, "Artista", class: "form-label" %>
-      <%= f.collection_select :artist_id, @artists, :id, :name, { prompt: "Elegí un artista" }, class: "form-control", required: true %>
+    <div class="field">
+      <%= f.label :artist_id, "Artista" %>
+      <%= f.collection_select :artist_id, @artists, :id, :name, { prompt: "Elegí un artista" }, required: true %>
     </div>
+  </div>
 
-    <div class="form-group" style="margin-top: 16px;">
-      <%= f.label :cover, "Portada (PNG, JPG o WEBP, hasta 5 MB)", class: "form-label" %>
-      <% if @album.persisted? && @album.cover.attached? %>
-        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px;">
-          <%= image_tag @album.cover, alt: "Portada actual", style: "width: 80px; height: 80px; border-radius: 8px; object-fit: cover;" %>
-          <label style="font-size: 13px; color: var(--text-muted);">
-            <%= check_box_tag "album[remove_cover]", "1", false %> Quitar portada actual
-          </label>
-        </div>
-      <% end %>
-      <%= f.file_field :cover, accept: "image/png,image/jpeg,image/webp", class: "form-control" %>
-    </div>
+  <div class="field">
+    <%= f.label :cover, "Portada" %>
+    <p class="hint">PNG, JPG o WEBP de hasta 5 MB.</p>
+    <% if @album.persisted? && @album.cover.attached? %>
+      <div class="current-cover">
+        <%= image_tag @album.cover, alt: "Portada actual" %>
+        <label class="check"><%= check_box_tag "album[remove_cover]", "1", false %> Quitar portada actual</label>
+      </div>
+    <% end %>
+    <%= f.file_field :cover, accept: "image/png,image/jpeg,image/webp" %>
+  </div>
 
-    <div class="form-actions">
-      <%= f.submit @album.new_record? ? "Guardar Álbum" : "Actualizar Álbum", class: "btn-accent" %>
-      <%= link_to "Cancelar", admin_albums_path, class: "btn-sm btn-secondary", style: "padding: 11px 20px; font-size: 14px;" %>
-    </div>
+  <div class="form-actions">
+    <%= f.submit @album.new_record? ? "Crear álbum" : "Guardar cambios", class: "btn-primary" %>
+    <%= link_to "Cancelar", admin_albums_path, class: "btn-link" %>
   </div>
 <% end %>

@@ -34,4 +34,12 @@ class SongTest < ActiveSupport::TestCase
     results = Song.search("Test Artist")
     assert results.count >= 1
   end
+
+  test "el álbum tiene que ser del mismo artista" do
+    other = Artist.create!(name: "Otro artista")
+    album = Album.create!(title: "Disco ajeno", artist: other)
+    song = Song.new(title: "Tema", artist: @artist, album: album, original_key: "G", content: "Letra de prueba de 10 caracteres")
+    assert_not song.valid?
+    assert song.errors[:album].any?
+  end
 end

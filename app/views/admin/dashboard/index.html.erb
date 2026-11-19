@@ -1,78 +1,73 @@
-<% content_for :page_title, "Dashboard General" %>
+<% content_for :title, "Inicio" %>
 
-
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-icon green"></div>
-    <div class="stat-info">
-      <span class="stat-value"><%= @songs_count %></span>
-      <span class="stat-label">Canciones y Cifras</span>
-    </div>
+<header class="page-head">
+  <div>
+    <h1>Inicio</h1>
+    <p>Lo que mandó la gente y espera revisión, y un resumen del catálogo.</p>
   </div>
-
-  <div class="stat-card">
-    <div class="stat-icon blue"></div>
-    <div class="stat-info">
-      <span class="stat-value"><%= @artists_count %></span>
-      <span class="stat-label">Artistas Registrados</span>
-    </div>
+  <div class="page-actions">
+    <%= link_to "Nueva canción", new_admin_song_path, class: "btn-primary" %>
   </div>
+</header>
 
-  <div class="stat-card">
-    <div class="stat-icon orange"></div>
-    <div class="stat-info">
-      <span class="stat-value"><%= @genres_count %></span>
-      <span class="stat-label">Géneros Musicales</span>
-    </div>
-  </div>
+<nav class="summary" aria-label="Resumen">
+  <%= link_to admin_songs_path(status: "pending"), class: "is-pending" do %>
+    <strong><%= @pending_songs.size %></strong><span>para revisar</span>
+  <% end %>
+  <%= link_to admin_songs_path(status: "approved") do %>
+    <strong><%= @counts[:songs] %></strong><span>publicadas</span>
+  <% end %>
+  <%= link_to admin_artists_path do %>
+    <strong><%= @counts[:artists] %></strong><span>artistas</span>
+  <% end %>
+  <%= link_to admin_albums_path do %>
+    <strong><%= @counts[:albums] %></strong><span>álbumes</span>
+  <% end %>
+  <%= link_to admin_users_path do %>
+    <strong><%= @counts[:users] %></strong><span>usuarios</span>
+  <% end %>
+</nav>
 
-  <div class="stat-card">
-    <div class="stat-icon purple"></div>
-    <div class="stat-info">
-      <span class="stat-value"><%= @users_count %></span>
-      <span class="stat-label">Usuarios</span>
-    </div>
-  </div>
-</div>
+<h2 class="section">Para revisar</h2>
+<% if @pending_songs.any? %>
+  <ul class="queue">
+    <% @pending_songs.each do |song| %>
+      <li>
+        <div>
+          <%= link_to song.title, admin_song_path(song), class: "title" %>
+          <div class="who">
+            <%= song.artist.name %>, subida por <%= song.user&.username || "sin usuario" %>
+            el <%= song.created_at.strftime("%d/%m") %>
+          </div>
+        </div>
+        <div class="actions">
+          <%= link_to "Ver cifra", admin_song_path(song), class: "btn btn-sm" %>
+          <%= button_to "Aprobar", approve_admin_song_path(song), method: :patch, class: "btn-approve btn-sm" %>
+          <%= button_to "Rechazar", reject_admin_song_path(song), method: :patch, class: "btn-danger btn-sm" %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="empty">No hay canciones esperando revisión.</p>
+<% end %>
 
-
-<div class="section-heading">
-  <h2 class="section-title">Últimas Canciones Agregadas</h2>
-  <%= link_to "Ver todas las canciones →", admin_songs_path, class: "btn-sm btn-secondary" %>
-</div>
-
-<div class="table-card">
-  <div class="table-responsive">
-    <table class="data-table">
-      <thead>
+<h2 class="section">Últimas cargadas</h2>
+<div class="table-wrap">
+  <table class="ruled">
+    <thead>
+      <tr><th>Canción</th><th>Artista</th><th>Tono</th><th>Subida por</th><th>Estado</th></tr>
+    </thead>
+    <tbody>
+      <% @recent_songs.each do |song| %>
         <tr>
-          <th>Título</th>
-          <th>Artista</th>
-          <th>Género</th>
-          <th>Tono</th>
-          <th>Subido por</th>
-          <th>Acciones</th>
+          <td class="title"><%= link_to song.title, admin_song_path(song) %></td>
+          <td><%= song.artist.name %></td>
+          <td class="key"><%= song.original_key %></td>
+          <td class="muted"><%= song.user&.username || "-" %></td>
+          <td><%= status_tag(song) %></td>
         </tr>
-      </thead>
-      <tbody>
-        <% @recent_songs.each do |song| %>
-          <tr>
-            <td>
-              <strong><%= link_to song.title, admin_song_path(song), style: "color: #fff; text-decoration: none;" %></strong>
-            </td>
-            <td><span style="color: var(--accent-cyan);"><%= song.artist.name %></span></td>
-            <td><span class="tag-genre"><%= song.genre&.name || "Sin género" %></span></td>
-            <td><span class="tag-key"><%= song.original_key %></span></td>
-            <td style="color: var(--text-dim);"><%= song.user&.username || "admin" %></td>
-            <td>
-              <div class="card-actions">
-                <%= link_to "👁 Ver Cifra", admin_song_path(song), class: "btn-sm btn-secondary" %>
-                <%= link_to "", edit_admin_song_path(song), class: "btn-sm btn-secondary" %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+      <% end %>
+    </tbody>
+  </table>
 </div>

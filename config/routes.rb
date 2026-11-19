@@ -28,6 +28,6 @@ Rails.application.routes.draw do
     resources :artists
     resources :albums, except: :show
     resources :genres
-    resources :users
+    resources :users, only: %i[index show]
   end
 end

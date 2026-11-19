@@ -1,6 +1,6 @@
-<% content_for :page_title, "Editar Género: #{@genre.name}" %>
-<div class="section-heading" style="margin-bottom: 24px;">
-  <h2 class="section-title">Modificar Género</h2>
-  <%= link_to "← Volver", admin_genres_path, class: "btn-sm btn-secondary" %>
-</div>
+<% content_for :title, @genre.name %>
+
+<%= link_to "Géneros", admin_genres_path, class: "back-link" %>
+<header class="page-head"><h1><%= @genre.name %></h1></header>
+
 <%= render "form" %>

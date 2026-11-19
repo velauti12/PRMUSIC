@@ -1,31 +1,30 @@
-<% content_for :page_title, "Gestión de Géneros Musicales" %>
+<% content_for :title, "Géneros" %>
 
-<div class="section-heading">
-  <h2 class="section-title"> Géneros Musicales </h2>
-  <%= link_to " Nuevo Género", new_admin_genre_path, class: "btn-accent" %>
-</div>
+<header class="page-head">
+  <div>
+    <h1>Géneros</h1>
+    <p>Solo se puede borrar un género que no tenga canciones.</p>
+  </div>
+  <div class="page-actions">
+    <%= link_to "Nuevo género", new_admin_genre_path, class: "btn-primary" %>
+  </div>
+</header>
 
-<div class="table-card" style="max-width: 700px;">
-  <div class="table-responsive">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre del Género</th>
-          <th>Canciones Asociadas</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+<% if @genres.empty? %>
+  <p class="empty">Todavía no hay géneros.</p>
+<% else %>
+  <div class="table-wrap">
+    <table class="ruled" style="max-width: 640px;">
+      <thead><tr><th>Género</th><th>Canciones</th><th><span class="sr-only">Acciones</span></th></tr></thead>
       <tbody>
         <% @genres.each do |genre| %>
           <tr>
-            <td>#<%= genre.id %></td>
-            <td><strong style="color: #fff;"><%= genre.name %></strong></td>
-            <td><span class="tag-genre"><%= genre.songs.count %> temas</span></td>
+            <td class="title"><%= link_to genre.name, edit_admin_genre_path(genre) %></td>
+            <td class="num"><%= genre.songs.size %></td>
             <td>
-              <div class="card-actions">
-                <%= link_to " Editar", edit_admin_genre_path(genre), class: "btn-sm btn-secondary" %>
-                <%= button_to "🗑", admin_genre_path(genre), method: :delete, data: { turbo_confirm: "¿Eliminar género?" }, class: "btn-sm btn-danger-outline", form: { style: "display:inline-block;" } %>
+              <div class="actions">
+                <%= link_to "Editar", edit_admin_genre_path(genre), class: "btn-link" %>
+                <%= delete_button admin_genre_path(genre), confirm: "¿Borrar el género #{genre.name}?" %>
               </div>
             </td>
           </tr>
@@ -33,4 +32,4 @@
       </tbody>
     </table>
   </div>
-</div>
+<% end %>

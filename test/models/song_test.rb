@@ -50,4 +50,17 @@ class SongTest < ActiveSupport::TestCase
     assert_includes song.transposed_content(2), "F#        A#m"
   end
 
+  test "saca el id del video de distintos links de YouTube" do
+    [ "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "https://youtu.be/dQw4w9WgXcQ?si=x",
+      "https://www.youtube.com/watch?list=abc&v=dQw4w9WgXcQ", "https://youtube.com/shorts/dQw4w9WgXcQ" ].each do |url|
+      assert_equal "dQw4w9WgXcQ", Song.new(video_url: url).youtube_id, url
+    end
+  end
+
+  test "no acepta links que no son de YouTube" do
+    song = Song.new(title: "Tema", artist: @artist, genre: @genre, original_key: "G",
+                    content: "Letra de prueba de 10 caracteres", video_url: "https://vimeo.com/123")
+    assert_not song.valid?
+    assert song.errors[:video_url].any?
+  end
 end

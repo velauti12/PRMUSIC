@@ -42,6 +42,11 @@
   </div>
 
   <div class="field">
+    <%= f.label :video_url, "Video de YouTube (opcional)" %>
+    <%= f.text_field :video_url, placeholder: "https://www.youtube.com/watch?v=..." %>
+  </div>
+
+  <div class="field">
     <%= f.label :content, "Letra con acordes" %>
     <p class="hint">Los acordes van en su propia línea, arriba de la sílaba donde cambian, y con mayúscula (Am, G, F#m7).</p>
     <%= f.text_area :content, rows: 18, class: "mono", required: true %>

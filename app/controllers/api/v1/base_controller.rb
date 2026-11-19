@@ -22,7 +22,8 @@ module Api
 
       # Canción con artista, género y álbum (con la URL pública de la portada, si tiene)
       def song_json(song)
-        song.as_json(include: SONG_INCLUDES).merge("album" => album_json(song.album))
+        song.as_json(include: SONG_INCLUDES)
+            .merge("album" => album_json(song.album), "youtube_id" => song.youtube_id)
       end
 
       def album_json(album)

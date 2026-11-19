@@ -51,6 +51,14 @@
       <div><dt>Fecha</dt><dd><%= @song.created_at.strftime("%d/%m/%Y") %></dd></div>
     </dl>
 
+    <% if @song.youtube_id %>
+      <div class="video">
+        <iframe src="https://www.youtube-nocookie.com/embed/<%= @song.youtube_id %>"
+                title="Video de <%= @song.title %>" loading="lazy" allowfullscreen
+                allow="accelerometer; encrypted-media; picture-in-picture"></iframe>
+      </div>
+    <% end %>
+
     <div class="moderation">
       <% if @song.pending? %>
         <p>Revisá que los acordes estén bien ubicados antes de publicarla.</p>

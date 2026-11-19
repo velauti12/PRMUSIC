@@ -15,6 +15,14 @@ class Song < ApplicationRecord
   validates :content, presence: true, length: { minimum: 10, message: "debe tener al menos 10 caracteres" }
   validates :original_key, presence: true, length: { maximum: 5 }, format: { with: /\A[A-G][b#]?(m|min|maj|dim|aug)?(7|9|11|13)?\z/i, message: "debe ser un acorde válido (ej: G, Am, C#, F#m7)" }
 
+  # Links de YouTube aceptados: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/shorts/ID y /embed/ID
+  YOUTUBE_ID = %r{(?:youtube\.com/(?:watch\?(?:.*&)?v=|shorts/|embed/)|youtu\.be/)([\w-]{11})}
+
+  YOUTUBE_URL = %r{\Ahttps?://(?:www\.|m\.)?(?:youtube\.com|youtu\.be)/\S*\z}
+
+  validates :video_url, format: { with: YOUTUBE_URL, message: "tiene que ser un link de YouTube" }, allow_blank: true
+  validate :video_url_must_have_video
+
   validate :album_must_belong_to_artist
   before_validation :clean_content
 
@@ -26,6 +34,11 @@ class Song < ApplicationRecord
 
   def transposed_content(semitones)
     SongTransposer.call(content, original_key, semitones)
+  end
+
+  # ID del video de YouTube (lo que va en el reproductor embebido), o nil
+  def youtube_id
+    video_url.to_s[YOUTUBE_ID, 1]
   end
 
   # Tonalidad resultante de transponer la original (ej: "Am" con -2 => "Gm")
@@ -45,6 +58,13 @@ class Song < ApplicationRecord
       .gsub(INVISIBLE_CHARS, "")
       .gsub(ODD_SPACES, " ")
       .gsub(/[ \t]+$/, "")
+  end
+
+  # Por ejemplo un link al canal o a una búsqueda no sirve: tiene que ser un video
+  def video_url_must_have_video
+    return if video_url.blank? || youtube_id.present?
+
+    errors.add(:video_url, "tiene que ser el link de un video")
   end
 
   def album_must_belong_to_artist

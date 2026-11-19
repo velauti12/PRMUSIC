@@ -82,7 +82,7 @@ module Admin
     end
 
     def song_params
-      params.require(:song).permit(:title, :artist_id, :genre_id, :original_key, :album_id, :content, :status)
+      params.require(:song).permit(:title, :artist_id, :genre_id, :original_key, :album_id, :content, :status, :video_url)
     end
   end
 end

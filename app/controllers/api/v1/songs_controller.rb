@@ -94,7 +94,7 @@ module Api
       end
 
       def song_params
-        params.require(:song).permit(:title, :artist_id, :genre_id, :user_id, :original_key, :album_id, :content)
+        params.require(:song).permit(:title, :artist_id, :genre_id, :user_id, :original_key, :album_id, :content, :video_url)
       end
     end
   end

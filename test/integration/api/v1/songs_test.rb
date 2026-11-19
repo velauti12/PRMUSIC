@@ -80,4 +80,10 @@ class Api::V1::SongsTest < ActionDispatch::IntegrationTest
     delete "/api/v1/songs/#{songs(:one).id}", headers: auth_headers(users(:admin))
     assert_response :no_content
   end
+
+  test "la canción devuelve el id del video de YouTube" do
+    songs(:one).update!(video_url: "https://youtu.be/dQw4w9WgXcQ")
+    get "/api/v1/songs/#{songs(:one).id}"
+    assert_equal "dQw4w9WgXcQ", json["youtube_id"]
+  end
 end
